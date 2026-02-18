@@ -1,0 +1,58 @@
+{
+  "name": "ultimate",
+  "version": "0.2.0",
+  "description": "NEXUS + 따뜻한 페르소나 에이전트. OpenClaw 연동, 로컬 제어, API 두뇌. Now with Electron desktop app!",
+  "type": "module",
+  "main": "main.js",
+  "bin": {
+    "ultimate": "src/entry.js"
+  },
+  "scripts": {
+    "start": "node src/entry.js",
+    "chat": "node src/entry.js chat",
+    "logs": "node src/entry.js logs",
+    "evolve": "node src/entry.js evolve",
+    "test": "node --test test/read-file.test.js test/evolution-gate.test.js test/redact-tools.test.js test/redact-tools.test.js test/write-file.test.js test/restart-guard.test.js test/fetch-url-security.test.js",
+    "web": "node src/entry.js web",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm run web\" \"wait-on http://localhost:3000 && electron .\"",
+    "dist": "electron-builder",
+    "postinstall": "echo 'Ultimate Electron app ready! Run `npm run electron` or `npm run dist` for build.'"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "electron": "^31.3.2",
+    "electron-builder": "^24.13.3",
+    "concurrently": "^8.2.2",
+    "wait-on": "^7.2.0"
+  },
+  "keywords": ["agent", "nexus", "openclaw", "cli", "electron", "desktop"],
+  "license": "MIT",
+  "build": {
+    "appId": "com.ultimate.agent",
+    "productName": "Ultimate Agent",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "src/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
