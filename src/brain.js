@@ -174,6 +174,15 @@ export async function chat(messages, config, onToolUse, onChunk, onToolRoundStar
         rounds++;
         continue;
       }
+      if (goalMode && content && rounds < maxToolRounds - 1) {
+        current = [
+          ...current,
+          { role: 'assistant', content },
+          { role: 'user', content: '[AUTOPILOT] 텍스트만 출력하지 마. 도구를 사용해서 다음 단계를 실행해. 목표가 달성되면 finish_goal을 호출해.' },
+        ];
+        rounds++;
+        continue;
+      }
       return { content, finishReason: 'stop' };
     }
 
@@ -223,6 +232,15 @@ export async function chat(messages, config, onToolUse, onChunk, onToolRoundStar
     }
 
     const content = delta.content?.trim() ?? '';
+    if (goalMode && content && rounds < maxToolRounds - 1) {
+      current = [
+        ...current,
+        { role: 'assistant', content },
+        { role: 'user', content: '[AUTOPILOT] 텍스트만 출력하지 마. 도구를 사용해서 다음 단계를 실행해. 목표가 달성되면 finish_goal을 호출해.' },
+      ];
+      rounds++;
+      continue;
+    }
     return { content, finishReason: choice.finish_reason };
   }
 

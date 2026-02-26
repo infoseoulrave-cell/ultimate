@@ -194,9 +194,13 @@ async function main() {
   const outColor = config.ui?.assistantColor ?? '\x1b[34m';
   const onChunk = (chunk) => process.stdout.write(outColor + chunk + '\x1b[0m');
 
-  const MAX_GOAL_CONTINUATIONS = 3;
+  const MAX_GOAL_CONTINUATIONS = 5;
   let continuations = 0;
   let currentMessages = [...messages];
+
+  if (isGoal) {
+    console.log('\x1b[33m[🚀 AUTOPILOT MODE] 목표 달성까지 자동 진행합니다.\x1b[0m\n');
+  }
 
   while (true) {
     try {
@@ -209,13 +213,14 @@ async function main() {
 
       if (goalDone || !isGoal) break;
 
-      if (out.finishReason === 'length' && continuations < MAX_GOAL_CONTINUATIONS) {
+      if (continuations < MAX_GOAL_CONTINUATIONS) {
         continuations++;
-        console.log('\n\x1b[33m[라운드 한도 도달 — 자동 연장 ' + continuations + '/' + MAX_GOAL_CONTINUATIONS + ']\x1b[0m');
+        const reason = out.finishReason === 'length' ? '라운드 한도 도달' : '자동 속행';
+        console.log('\n\x1b[33m[AUTOPILOT ' + reason + ' — 연장 ' + continuations + '/' + MAX_GOAL_CONTINUATIONS + ']\x1b[0m');
         currentMessages = [
           ...currentMessages,
           { role: 'assistant', content: content || '진행 중입니다...' },
-          { role: 'user', content: '아직 목표가 완료되지 않았어. 멈추지 말고 계속 진행해. 다른 방법을 시도해서라도 반드시 달성해.' },
+          { role: 'user', content: '[AUTOPILOT] 목표가 아직 완료되지 않았다. finish_goal이 호출되지 않았으므로 계속 진행해. 도구를 사용해서 다음 단계를 바로 실행해. 멈추지 마.' },
         ];
         continue;
       }
