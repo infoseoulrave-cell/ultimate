@@ -61,10 +61,34 @@ function accumulateStream(res, onChunk) {
   });
 }
 
+async function fetchWithRetry(url, options, maxRetries = 3) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    let res;
+    try {
+      res = await fetch(url, options);
+    } catch (e) {
+      if (attempt < maxRetries) {
+        const delay = Math.pow(2, attempt) * 1000;
+        await new Promise(r => setTimeout(r, delay));
+        continue;
+      }
+      throw new Error(`네트워크 연결 실패 (${maxRetries + 1}회 시도): ${e?.message || String(e)}`);
+    }
+    if (res.ok) return res;
+    if ((res.status === 429 || res.status >= 500) && attempt < maxRetries) {
+      const retryAfter = Number(res.headers.get('retry-after')) || Math.pow(2, attempt + 1);
+      const delay = Math.min(retryAfter * 1000, 30000);
+      await new Promise(r => setTimeout(r, delay));
+      continue;
+    }
+    return res;
+  }
+}
+
 export async function chat(messages, config, onToolUse, onChunk, onToolRoundStart) {
   const { apiKey, apiBase, model, openclawPath, allowDirs, home, fetchTimeout, maxFetchBytes } = config;
   const goalMode = config.goalMode === true;
-  const maxToolRounds = goalMode ? (config.maxGoalRounds ?? 20) : (config.maxToolRounds ?? 5);
+  const maxToolRounds = goalMode ? (config.maxGoalRounds ?? 50) : (config.maxToolRounds ?? 10);
   if (!apiKey) throw new Error('Missing API key. Set OPENAI_API_KEY or ULTIMATE_API_KEY or apiKey in ~/.ultimate/config.json');
 
   const url = `${apiBase.replace(/\/$/, '')}/chat/completions`;
@@ -88,20 +112,14 @@ export async function chat(messages, config, onToolUse, onChunk, onToolRoundStar
       stream,
       tools: tools.length ? tools : undefined,
     };
-    let res;
-    try {
-      res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(body),
-      });
-    } catch (e) {
-      const msg = e?.message || String(e);
-      throw new Error(`네트워크 연결 실패: ${msg}. API endpoint(${apiBase})와 인터넷 연결을 확인하세요.`);
-    }
+    const res = await fetchWithRetry(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(body),
+    }, goalMode ? 5 : 3);
     if (!res.ok) {
       const t = await res.text();
       let msg = `API error ${res.status}`;
@@ -208,5 +226,8 @@ export async function chat(messages, config, onToolUse, onChunk, onToolRoundStar
     return { content, finishReason: choice.finish_reason };
   }
 
+  if (goalMode) {
+    return { content: '(도구 호출 한도에 도달했지만 목표를 향해 최대한 진행했습니다. 지금까지의 진행 상황을 확인하세요.)', finishReason: 'length' };
+  }
   return { content: '(도구 호출 한도에 도달했습니다. 요약만 드립니다.)', finishReason: 'length' };
 }

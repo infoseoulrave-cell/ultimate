@@ -176,7 +176,7 @@ async function main() {
   const messages = isGoal
     ? [
         { role: 'system', content: getGoalSystemPrompt(config.home, charId, userMessage, process.cwd()) },
-        { role: 'user', content: '이 목표를 달성할 때까지 단계별로 진행해줘. 실패하면 다른 방법을 시도해.' },
+        { role: 'user', content: '이 목표를 달성할 때까지 단계별로 진행해줘. 실패하면 다른 방법을 시도해. 절대 멈추지 마.' },
       ]
     : [
         { role: 'system', content: getSystemPrompt(config.home, charId) },
@@ -194,18 +194,38 @@ async function main() {
   const outColor = config.ui?.assistantColor ?? '\x1b[34m';
   const onChunk = (chunk) => process.stdout.write(outColor + chunk + '\x1b[0m');
 
-  try {
-    const out = await chat(messages, runConfig, (ev) => toolUses.push(ev), onChunk);
-    content = out.content;
-    goalDone = out.goalDone;
-    goalResult = out.goalResult;
-    goalSummary = out.goalSummary;
-    if (content && onChunk) process.stdout.write('\n');
-  } catch (e) {
-    err = e.message || String(e);
-    writeLog(config.home, 'error', { error: err, input: userMessage });
-    console.error(err);
-    process.exit(1);
+  const MAX_GOAL_CONTINUATIONS = 3;
+  let continuations = 0;
+  let currentMessages = [...messages];
+
+  while (true) {
+    try {
+      const out = await chat(currentMessages, runConfig, (ev) => toolUses.push(ev), onChunk);
+      content = out.content;
+      goalDone = out.goalDone;
+      goalResult = out.goalResult;
+      goalSummary = out.goalSummary;
+      if (content && onChunk) process.stdout.write('\n');
+
+      if (goalDone || !isGoal) break;
+
+      if (out.finishReason === 'length' && continuations < MAX_GOAL_CONTINUATIONS) {
+        continuations++;
+        console.log('\n\x1b[33m[라운드 한도 도달 — 자동 연장 ' + continuations + '/' + MAX_GOAL_CONTINUATIONS + ']\x1b[0m');
+        currentMessages = [
+          ...currentMessages,
+          { role: 'assistant', content: content || '진행 중입니다...' },
+          { role: 'user', content: '아직 목표가 완료되지 않았어. 멈추지 말고 계속 진행해. 다른 방법을 시도해서라도 반드시 달성해.' },
+        ];
+        continue;
+      }
+      break;
+    } catch (e) {
+      err = e.message || String(e);
+      writeLog(config.home, 'error', { error: err, input: userMessage });
+      console.error(err);
+      process.exit(1);
+    }
   }
 
   const duration = Date.now() - start;
@@ -227,7 +247,7 @@ async function main() {
   } else if (content && !onChunk) {
     console.log(outColor + content + '\x1b[0m');
   } else if (isGoal && !content) {
-    console.log('\n\x1b[33m(한도 도달. 목표는 아직 완료되지 않았습니다.)\x1b[0m');
+    console.log('\n\x1b[33m(최대 연장 한도 도달. 목표는 아직 완료되지 않았습니다.)\x1b[0m');
   }
 }
 

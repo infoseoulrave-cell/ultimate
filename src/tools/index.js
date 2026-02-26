@@ -4,6 +4,7 @@ import { readFile } from './read-file.js';
 import { writeFile } from './write-file.js';
 import { fetchUrl } from './fetch-url.js';
 import { saveKnowledge, readKnowledge } from './knowledge.js';
+import { runCommand } from './run-command.js';
 
 const TOOL_LIST = [
   {
@@ -97,6 +98,22 @@ const TOOL_LIST = [
   {
     type: 'function',
     function: {
+      name: 'run_command',
+      description: 'Execute a shell command on the local machine and return stdout/stderr. Use this to install packages, run scripts, compile code, manage processes, check system state, or any task that requires terminal access. Destructive system-level commands (e.g. rm -rf /) are blocked.',
+      parameters: {
+        type: 'object',
+        properties: {
+          command: { type: 'string', description: 'Shell command to execute (e.g. "ls -la", "npm install", "python3 script.py")' },
+          cwd: { type: 'string', description: 'Optional working directory (defaults to project root)' },
+          timeout_seconds: { type: 'number', description: 'Max seconds to wait (default 30, max 120)' },
+        },
+        required: ['command'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'restart_self',
       description: 'Restart the current Ultimate session (exit this process and start a new one in the same terminal). Use ONLY when the user explicitly asks to restart, relaunch, or "끄고 다시 실행해" the app. After a short delay the session will restart; the user does not need to press Ctrl+C.',
       parameters: {
@@ -160,6 +177,7 @@ export async function runTool(name, args, ctx) {
     const result = args?.result === 'impossible' ? 'impossible' : 'achieved';
     return { _goalFinished: true, result, summary: String(args?.summary ?? '').slice(0, 500) };
   }
+  if (name === 'run_command') return runCommand(args.command, args, ctx);
   if (name === 'run_openclaw') return runOpenClaw(args.message, ctx);
   if (name === 'read_file') return readFile(args.path, ctx);
   if (name === 'write_file') return writeFile(args.path, args.content, ctx);
