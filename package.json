@@ -12,7 +12,7 @@
     "chat": "node src/entry.js chat",
     "logs": "node src/entry.js logs",
     "evolve": "node src/entry.js evolve",
-    "test": "node --test test/read-file.test.js test/evolution-gate.test.js test/redact-tools.test.js test/write-file.test.js test/restart-guard.test.js test/fetch-url-security.test.js",
+    "test": "node --test test/read-file.test.js test/evolution-gate.test.js test/redact-tools.test.js test/write-file.test.js test/restart-guard.test.js test/fetch-url-security.test.js test/run-command.test.js",
     "web": "node src/entry.js web",
     "electron": "electron .",
     "electron-dev": "concurrently \"npm run web\" \"wait-on http://localhost:3000 && electron .\"",
