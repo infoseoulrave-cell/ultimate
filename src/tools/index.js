@@ -8,6 +8,8 @@ import { runCommand } from './run-command.js';
 import { analyzeImage } from './analyze-image.js';
 import { transcribeAudio } from './transcribe-audio.js';
 import { analyzeVideo } from './analyze-video.js';
+import { downloadMedia } from './download-media.js';
+import { replicateReference } from './replicate-reference.js';
 
 const TOOL_LIST = [
   {
@@ -161,6 +163,35 @@ const TOOL_LIST = [
   {
     type: 'function',
     function: {
+      name: 'download_media',
+      description: 'Download a media file (video, image, audio) from a URL to local storage. Supports YouTube, Vimeo, TikTok, Twitter/X, Instagram, and direct media URLs. Uses yt-dlp for video sites. Returns the local file path and metadata. After downloading, use analyze_image/analyze_video/transcribe_audio to analyze the content.',
+      parameters: {
+        type: 'object',
+        properties: {
+          url: { type: 'string', description: 'URL of the media to download (YouTube link, direct .mp4/.jpg URL, etc.)' },
+        },
+        required: ['url'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'replicate_reference',
+      description: 'Download a reference media (video/image/audio) from URL, analyze it in detail, and generate a step-by-step replication plan. Use this when the user provides a reference URL and wants you to create something identical or similar. The tool downloads the media, analyzes every visual/audio detail (layout, colors, fonts, animations, text, timing), and returns a structured plan to reproduce it.',
+      parameters: {
+        type: 'object',
+        properties: {
+          url: { type: 'string', description: 'URL of the reference media (YouTube video, image URL, etc.)' },
+          instruction: { type: 'string', description: 'Optional specific instruction about what aspect to focus on or how to replicate' },
+        },
+        required: ['url'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'restart_self',
       description: 'Restart the current Ultimate session (exit this process and start a new one in the same terminal). Use ONLY when the user explicitly asks to restart, relaunch, or "끄고 다시 실행해" the app. After a short delay the session will restart; the user does not need to press Ctrl+C.',
       parameters: {
@@ -228,6 +259,8 @@ export async function runTool(name, args, ctx) {
   if (name === 'analyze_image') return analyzeImage(args.path, args.question, { ...ctx, apiKey: ctx._apiKey, apiBase: ctx._apiBase, model: ctx._model });
   if (name === 'transcribe_audio') return transcribeAudio(args.path, { ...ctx, apiKey: ctx._apiKey, apiBase: ctx._apiBase });
   if (name === 'analyze_video') return analyzeVideo(args.path, args.question, { ...ctx, apiKey: ctx._apiKey, apiBase: ctx._apiBase, model: ctx._model });
+  if (name === 'download_media') return downloadMedia(args.url, args, ctx);
+  if (name === 'replicate_reference') return replicateReference(args.url, args.instruction, ctx);
   if (name === 'run_openclaw') return runOpenClaw(args.message, ctx);
   if (name === 'read_file') return readFile(args.path, ctx);
   if (name === 'write_file') return writeFile(args.path, args.content, ctx);
