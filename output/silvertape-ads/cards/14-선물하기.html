@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&family=Space+Grotesk:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1080px; background: #0a0a0a; color: #fff; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .border { position: absolute; inset: 24px; border: 1px solid rgba(255,255,255,0.08); border-radius: 2px; pointer-events: none; }
+  .inner { padding: 64px 72px; display: flex; flex-direction: column; height: 100%; position: relative; z-index: 1; }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
+  .logo { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 4px; color: rgba(255,255,255,0.5); }
+  .cat { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: #FF6B9D; text-transform: uppercase; }
+  .headline { font-size: 72px; font-weight: 900; line-height: 1.1; letter-spacing: -2px; margin-bottom: 20px; }
+  .headline .accent { color: #FF6B9D; }
+  .sub { font-size: 18px; font-weight: 300; color: rgba(255,255,255,0.5); margin-bottom: 48px; letter-spacing: 0.5px; }
+  .body { font-size: 20px; font-weight: 300; line-height: 1.8; color: rgba(255,255,255,0.75); flex: 1; }
+  .bottom { margin-top: auto; padding-top: 36px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
+  .cta { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: #FF6B9D; letter-spacing: 1px; }
+  .tag { font-size: 13px; color: rgba(255,255,255,0.3); }
+  .dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #FF6B9D; }
+  .dot-tl { top: 48px; left: 48px; }
+  .dot-br { bottom: 48px; right: 48px; }
+</style></head>
+<body>
+  <div class="border"></div>
+  <div class="dot dot-tl"></div>
+  <div class="dot dot-br"></div>
+  <div class="inner">
+    <div class="top">
+      <span class="logo">SILVERTAPE</span>
+      <span class="cat">LIFESTYLE</span>
+    </div>
+    <div class="headline"><span class="accent">선물하기</span><br>가장 좋은<br>예술.</div>
+    <div class="sub">The perfect gift — art that stays.</div>
+    <div class="body">꽃은 시들고, 케이크는 사라지지만<br>벽 위의 예술은 매일 남습니다.<br>생일 · 집들이 · 기념일 선물.</div>
+    <div class="bottom">
+      <span class="cta">선물 추천 보기 →</span>
+      <span class="tag">#선물 #기념일</span>
+    </div>
+  </div>
+</body></html>

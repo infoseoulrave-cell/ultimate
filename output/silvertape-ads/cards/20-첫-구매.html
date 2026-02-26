@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&family=Space+Grotesk:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1080px; background: #0d0d0d; color: #fff; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .border { position: absolute; inset: 24px; border: 1px solid rgba(255,255,255,0.08); border-radius: 2px; pointer-events: none; }
+  .inner { padding: 64px 72px; display: flex; flex-direction: column; height: 100%; position: relative; z-index: 1; }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
+  .logo { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 4px; color: rgba(255,255,255,0.5); }
+  .cat { font-size: 12px; font-weight: 700; letter-spacing: 3px; color: #00CED1; text-transform: uppercase; }
+  .headline { font-size: 72px; font-weight: 900; line-height: 1.1; letter-spacing: -2px; margin-bottom: 20px; }
+  .headline .accent { color: #00CED1; }
+  .sub { font-size: 18px; font-weight: 300; color: rgba(255,255,255,0.5); margin-bottom: 48px; letter-spacing: 0.5px; }
+  .body { font-size: 20px; font-weight: 300; line-height: 1.8; color: rgba(255,255,255,0.75); flex: 1; }
+  .bottom { margin-top: auto; padding-top: 36px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
+  .cta { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: #00CED1; letter-spacing: 1px; }
+  .tag { font-size: 13px; color: rgba(255,255,255,0.3); }
+  .dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #00CED1; }
+  .dot-tl { top: 48px; left: 48px; }
+  .dot-br { bottom: 48px; right: 48px; }
+</style></head>
+<body>
+  <div class="border"></div>
+  <div class="dot dot-tl"></div>
+  <div class="dot dot-br"></div>
+  <div class="inner">
+    <div class="top">
+      <span class="logo">SILVERTAPE</span>
+      <span class="cat">PROMO</span>
+    </div>
+    <div class="headline"><span class="accent">첫 구매</span><br>할인</div>
+    <div class="sub">Welcome to SILVERTAPE — 첫 만남 기념</div>
+    <div class="body">처음 오신 분들을 위한 특별 혜택.<br>뉴스레터 구독 시<br>첫 주문 10% 할인.</div>
+    <div class="bottom">
+      <span class="cta">지금 구독하기 →</span>
+      <span class="tag">#첫구매 #할인</span>
+    </div>
+  </div>
+</body></html>
