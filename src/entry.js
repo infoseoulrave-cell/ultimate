@@ -19,7 +19,7 @@ import { runEvolution } from './evolution.js';
 import { readFile } from './tools/read-file.js';
 
 const args = process.argv.slice(2);
-const cmd = !args[0] ? 'usage' : ['chat', 'logs', 'evolve', 'goal', 'goal-meeting', 'web'].includes(args[0]) ? args[0] : 'usage';
+const cmd = !args[0] ? 'usage' : ['chat', 'logs', 'evolve', 'goal', 'goal-meeting', 'web', 'telegram', 'discord'].includes(args[0]) ? args[0] : 'usage';
 const rest = (cmd === 'chat' || cmd === 'goal') ? args.slice(1) : [];
 
 function printUsage() {
@@ -34,6 +34,8 @@ function printUsage() {
   console.error('       ultimate evolve        # self-meeting (NEXUS vs OBSERVER)');
   console.error("       ultimate logs          # show log dir and today's calls");
   console.error('       ultimate web           # 웹 UI 띄우기 (http://localhost:3000/chat)');
+  console.error('       ultimate telegram      # 텔레그램 봇 시작 (TELEGRAM_BOT_TOKEN 필요)');
+  console.error('       ultimate discord       # 디스코드 봇 시작 (DISCORD_BOT_TOKEN 필요)');
   console.error('Quick start: README § 실행 방법 or docs/ARCHITECTURE.md');
 }
 
@@ -50,6 +52,18 @@ async function main() {
     console.log('🌐 Web UI 모드 시작... (Tailwind CSS 적용)');
     const { startWebServer } = await import('./web-server.js');
     startWebServer(config);
+    return;
+  }
+
+  if (cmd === 'telegram') {
+    const { runTelegramBot } = await import('./channels/telegram.js');
+    await runTelegramBot(config);
+    return;
+  }
+
+  if (cmd === 'discord') {
+    const { runDiscordBot } = await import('./channels/discord.js');
+    await runDiscordBot(config);
     return;
   }
 

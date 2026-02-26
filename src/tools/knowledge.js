@@ -1,5 +1,6 @@
 import { appendFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
+import { saveWithEmbedding, semanticSearch } from './vector-store.js';
 
 const FILENAME = 'store.jsonl';
 
@@ -24,7 +25,8 @@ export async function saveKnowledge(args, ctx) {
   }) + '\n';
   try {
     appendFileSync(path, line);
-    return { ok: true, message: 'Saved to knowledge store' };
+    const vecResult = await saveWithEmbedding(args, ctx).catch(() => null);
+    return { ok: true, message: 'Saved to knowledge store', vectorized: vecResult?.vectorized || false };
   } catch (e) {
     return { error: e.message };
   }
@@ -33,9 +35,18 @@ export async function saveKnowledge(args, ctx) {
 export async function readKnowledge(args, ctx) {
   const home = ctx?.home;
   if (!home) return { error: 'No home path' };
+
+  const query = (args?.query || '').trim();
+  if (query && ctx?._apiKey) {
+    try {
+      const vecResult = await semanticSearch(query, { ...ctx, limit: args?.limit });
+      if (vecResult.results?.length > 0) return { ...vecResult, entries: vecResult.results };
+    } catch (_) {}
+  }
+
   const path = getStorePath(home);
-  if (!existsSync(path)) return { entries: [], total: 0 };
-  const query = (args?.query || '').toLowerCase().trim();
+  if (!existsSync(path)) return { entries: [], total: 0, method: 'keyword' };
+  const q = query.toLowerCase();
   const limit = Math.min(Number(args?.limit) || 20, 50);
   let lines;
   try {
@@ -47,12 +58,12 @@ export async function readKnowledge(args, ctx) {
   for (let i = lines.length - 1; i >= 0 && entries.length < limit; i--) {
     try {
       const o = JSON.parse(lines[i]);
-      if (query) {
+      if (q) {
         const text = [o.title, o.summary, o.url, (o.tags || []).join(' ')].join(' ').toLowerCase();
-        if (!text.includes(query)) continue;
+        if (!text.includes(q)) continue;
       }
       entries.push({ title: o.title, url: o.url, summary: o.summary?.slice(0, 500), tags: o.tags, at: o.at });
     } catch (_) {}
   }
-  return { entries, total: lines.length };
+  return { entries, total: lines.length, method: 'keyword' };
 }

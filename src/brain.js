@@ -1,4 +1,4 @@
-import { TOOL_DEFINITIONS, TOOL_DEFINITIONS_GOAL, runTool } from './tools/index.js';
+import { TOOL_DEFINITIONS, TOOL_DEFINITIONS_GOAL, runTool, ensureSkillsLoaded, getToolDefinitions } from './tools/index.js';
 
 function accumulateStream(res, onChunk) {
   return new Promise((resolve, reject) => {
@@ -103,7 +103,8 @@ export async function chat(messages, config, onToolUse, onChunk, onToolRoundStar
   }
   let rounds = 0;
   const stream = Boolean(onChunk);
-  const tools = goalMode ? TOOL_DEFINITIONS_GOAL : TOOL_DEFINITIONS;
+  await ensureSkillsLoaded();
+  const tools = getToolDefinitions(goalMode);
 
   while (rounds < maxToolRounds) {
     const body = {

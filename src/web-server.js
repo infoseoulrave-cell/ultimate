@@ -188,6 +188,16 @@ export function startWebServer(config = {}) {
     res.redirect('/chat');
   });
 
+  app.get('/health', (req, res) => {
+    res.json({
+      status: 'ok',
+      uptime: Math.round(process.uptime()),
+      memory: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB',
+      version: '0.2.0',
+      apiConfigured: !!cfg.apiKey,
+    });
+  });
+
   app.post('/api/chat', async (req, res) => {
     if (!cfg.apiKey) {
       return res.status(500).json({ error: 'API 키가 없습니다. ~/.ultimate/config.json 또는 환경변수를 설정하세요.' });

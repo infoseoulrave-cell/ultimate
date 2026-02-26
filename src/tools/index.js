@@ -10,6 +10,7 @@ import { transcribeAudio } from './transcribe-audio.js';
 import { analyzeVideo } from './analyze-video.js';
 import { downloadMedia } from './download-media.js';
 import { replicateReference } from './replicate-reference.js';
+import { loadSkills, getSkillDefinitions, runSkill } from '../skills/registry.js';
 
 const TOOL_LIST = [
   {
@@ -219,6 +220,19 @@ const TOOL_LIST = [
   },
 ];
 
+let _skillsLoaded = false;
+export async function ensureSkillsLoaded() {
+  if (_skillsLoaded) return;
+  await loadSkills();
+  _skillsLoaded = true;
+}
+
+export function getToolDefinitions(includeGoal = false) {
+  const skillDefs = getSkillDefinitions();
+  const base = includeGoal ? TOOL_LIST : TOOL_LIST.slice(0, -1);
+  return [...base, ...skillDefs];
+}
+
 export const TOOL_DEFINITIONS = TOOL_LIST.slice(0, -1);
 export const TOOL_DEFINITIONS_GOAL = TOOL_LIST;
 
@@ -267,5 +281,6 @@ export async function runTool(name, args, ctx) {
   if (name === 'fetch_url') return fetchUrl(args.url, ctx);
   if (name === 'save_knowledge') return saveKnowledge(args, ctx);
   if (name === 'read_knowledge') return readKnowledge(args, ctx);
+  if (name.startsWith('skill_')) return runSkill(name, args, ctx);
   return { error: `Unknown tool: ${name}` };
 }
