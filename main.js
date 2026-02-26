@@ -25,7 +25,7 @@ function createWindow() {
   // 서버 준비 대기
   const port = 3000;
   const readyPromise = new Promise((resolve) => {
-    const server = webServer._server || webServer.server; // express listen server
+    const server = webServer.server;
     if (server.listening) resolve();
     else server.on('listening', resolve);
   });
@@ -63,8 +63,8 @@ function createWindow() {
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
-  if (webServer) {
-    webServer.close(() => {
+  if (webServer?.server) {
+    webServer.server.close(() => {
       console.log('웹 서버 종료');
     });
   }

@@ -48,8 +48,8 @@ async function main() {
 
   if (cmd === 'web') {
     console.log('🌐 Web UI 모드 시작... (Tailwind CSS 적용)');
-    const { runWebServer } = await import('./web-server.js');
-    await runWebServer(config);
+    const { startWebServer } = await import('./web-server.js');
+    startWebServer(config);
     return;
   }
 

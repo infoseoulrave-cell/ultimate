@@ -243,6 +243,6 @@ export function startWebServer(config = {}) {
     console.log(`\\n🚀 Ultimate Web Server @ http://localhost:${port}`);
   });
 
-  // SIGINT 핸들링 제거 (Electron에서)
+  app.server = server;
   return app;
 }
