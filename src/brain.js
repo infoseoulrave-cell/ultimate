@@ -92,7 +92,7 @@ export async function chat(messages, config, onToolUse, onChunk, onToolRoundStar
   if (!apiKey) throw new Error('Missing API key. Set OPENAI_API_KEY or ULTIMATE_API_KEY or apiKey in ~/.ultimate/config.json');
 
   const url = `${apiBase.replace(/\/$/, '')}/chat/completions`;
-  const ctx = { openclawPath, allowDirs, home, fetchTimeout, maxFetchBytes, openclawTimeout: config.openclawTimeout };
+  const ctx = { openclawPath, allowDirs, home, fetchTimeout, maxFetchBytes, openclawTimeout: config.openclawTimeout, _apiKey: apiKey, _apiBase: apiBase, _model: model };
   let current = [...messages];
 
   function getLastUserContent(msgs) {

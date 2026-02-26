@@ -5,6 +5,9 @@ import { writeFile } from './write-file.js';
 import { fetchUrl } from './fetch-url.js';
 import { saveKnowledge, readKnowledge } from './knowledge.js';
 import { runCommand } from './run-command.js';
+import { analyzeImage } from './analyze-image.js';
+import { transcribeAudio } from './transcribe-audio.js';
+import { analyzeVideo } from './analyze-video.js';
 
 const TOOL_LIST = [
   {
@@ -114,6 +117,50 @@ const TOOL_LIST = [
   {
     type: 'function',
     function: {
+      name: 'analyze_image',
+      description: 'Analyze an image file using vision AI. Returns a detailed description of the image content including objects, text, colors, layout, people, and scene. Use this when you need to understand what is in a photo, screenshot, diagram, or any image file.',
+      parameters: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: 'Path to the image file (jpg, png, gif, webp, bmp, tiff)' },
+          question: { type: 'string', description: 'Optional specific question about the image (default: general analysis)' },
+        },
+        required: ['path'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'transcribe_audio',
+      description: 'Transcribe an audio file to text using Whisper AI. Returns the full transcript with timestamps, detected language, and duration. Use this when you need to understand what is said in an audio recording, podcast, voice memo, or music file.',
+      parameters: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: 'Path to the audio file (mp3, wav, m4a, flac, ogg, opus, webm, aac, wma)' },
+        },
+        required: ['path'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'analyze_video',
+      description: 'Analyze a video file by extracting key frames (visual analysis) and audio (transcription). Returns frame-by-frame visual descriptions plus audio transcript. Use this when you need to understand the content of a video file.',
+      parameters: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: 'Path to the video file (mp4, mov, avi, mkv, webm, flv, wmv)' },
+          question: { type: 'string', description: 'Optional specific question about the video (default: general analysis)' },
+        },
+        required: ['path'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'restart_self',
       description: 'Restart the current Ultimate session (exit this process and start a new one in the same terminal). Use ONLY when the user explicitly asks to restart, relaunch, or "끄고 다시 실행해" the app. After a short delay the session will restart; the user does not need to press Ctrl+C.',
       parameters: {
@@ -178,6 +225,9 @@ export async function runTool(name, args, ctx) {
     return { _goalFinished: true, result, summary: String(args?.summary ?? '').slice(0, 500) };
   }
   if (name === 'run_command') return runCommand(args.command, args, ctx);
+  if (name === 'analyze_image') return analyzeImage(args.path, args.question, { ...ctx, apiKey: ctx._apiKey, apiBase: ctx._apiBase, model: ctx._model });
+  if (name === 'transcribe_audio') return transcribeAudio(args.path, { ...ctx, apiKey: ctx._apiKey, apiBase: ctx._apiBase });
+  if (name === 'analyze_video') return analyzeVideo(args.path, args.question, { ...ctx, apiKey: ctx._apiKey, apiBase: ctx._apiBase, model: ctx._model });
   if (name === 'run_openclaw') return runOpenClaw(args.message, ctx);
   if (name === 'read_file') return readFile(args.path, ctx);
   if (name === 'write_file') return writeFile(args.path, args.content, ctx);

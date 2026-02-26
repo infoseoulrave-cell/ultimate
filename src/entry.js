@@ -25,7 +25,7 @@ const rest = (cmd === 'chat' || cmd === 'goal') ? args.slice(1) : [];
 function printUsage() {
   console.error('Usage: ultimate chat \"message\"');
   console.error('       ultimate chat -c <name> \"message\"    # character: nexus, seri, turnbo');
-  console.error('       ultimate chat -f <path> \"message\"   # attach file (allowlist)');
+  console.error('       ultimate chat -f <path> \"message\"   # attach file/image/audio/video');
   console.error('       ultimate chat          # interactive TUI');
   console.error('       ultimate goal \"목표\"   # 목표 달성까지 도구로 반복 실행 (핵심 기능)');
   console.error('       ultimate goal -c seri \"목표\"        # 캐릭터 지정');
@@ -141,10 +141,22 @@ async function main() {
     break;
   }
   let userMessage = msgParts.join(' ').trim();
+  const MEDIA_IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.tif'];
+  const MEDIA_AUDIO_EXT = ['.mp3', '.m4a', '.wav', '.flac', '.ogg', '.opus', '.aac', '.wma'];
+  const MEDIA_VIDEO_EXT = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v'];
   if (filePath) {
-    const r = await readFile(filePath, { allowDirs: config.allowDirs });
-    if (r.error) userMessage = `[Attachment failed: ${r.error}]\n\n${userMessage || '이 파일을 확인해줘'}`;
-    else userMessage = `[Attached file: ${filePath}]\n\n${(r.content || '').slice(0, MAX_ATTACH_CHARS)}${(r.content || '').length > MAX_ATTACH_CHARS ? '\n...[truncated]' : ''}\n\nUser: ${userMessage || '이 파일을 읽고 요약해줘'}`;
+    const ext = (filePath.match(/\.[^.]+$/) || [''])[0].toLowerCase();
+    if (MEDIA_IMAGE_EXT.includes(ext)) {
+      userMessage = `[Attached image: ${filePath}]\n\n이 이미지를 analyze_image 도구로 분석해줘.\n\nUser: ${userMessage || '이 이미지를 분석하고 설명해줘'}`;
+    } else if (MEDIA_AUDIO_EXT.includes(ext)) {
+      userMessage = `[Attached audio: ${filePath}]\n\n이 오디오를 transcribe_audio 도구로 전사해줘.\n\nUser: ${userMessage || '이 오디오를 듣고 내용을 알려줘'}`;
+    } else if (MEDIA_VIDEO_EXT.includes(ext)) {
+      userMessage = `[Attached video: ${filePath}]\n\n이 동영상을 analyze_video 도구로 분석해줘.\n\nUser: ${userMessage || '이 동영상을 보고 내용을 설명해줘'}`;
+    } else {
+      const r = await readFile(filePath, { allowDirs: config.allowDirs });
+      if (r.error) userMessage = `[Attachment failed: ${r.error}]\n\n${userMessage || '이 파일을 확인해줘'}`;
+      else userMessage = `[Attached file: ${filePath}]\n\n${(r.content || '').slice(0, MAX_ATTACH_CHARS)}${(r.content || '').length > MAX_ATTACH_CHARS ? '\n...[truncated]' : ''}\n\nUser: ${userMessage || '이 파일을 읽고 요약해줘'}`;
+    }
   }
   if (!userMessage) {
     if (cmd === 'goal') {
