@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1080px; font-family: 'Noto Sans KR', sans-serif; background: linear-gradient(135deg, #56ab2f, #a8e063); color: #1a1a1a; display: flex; flex-direction: column; padding: 60px; overflow: hidden; }
+  .header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .num { font-size: 18px; font-weight: 700; opacity: 0.6; letter-spacing: 2px; }
+  .emoji { font-size: 64px; margin-bottom: 12px; }
+  .title { font-size: 52px; font-weight: 900; line-height: 1.2; margin-bottom: 6px; }
+  .subtitle { font-size: 22px; font-weight: 400; opacity: 0.7; margin-bottom: 36px; letter-spacing: 1px; }
+  .points { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .point { background: rgba(0,0,0,0.06); backdrop-filter: blur(10px); border-radius: 16px; padding: 18px 24px; font-size: 22px; line-height: 1.5; font-weight: 400; display: flex; align-items: center; gap: 14px; }
+  .point-num { width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+  .tip { margin-top: 28px; padding: 20px 24px; background: rgba(0,0,0,0.08); border-radius: 16px; border-left: 4px solid #333; }
+  .tip-label { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; margin-bottom: 6px; }
+  .tip-text { font-size: 18px; line-height: 1.5; font-style: italic; }
+  .footer { margin-top: 24px; display: flex; justify-content: space-between; align-items: center; opacity: 0.5; font-size: 14px; }
+</style></head>
+<body>
+  <div class="header"><span class="num">18 / 30</span></div>
+  <div class="emoji">🔲</div>
+  <div class="title">패턴 디자인</div>
+  <div class="subtitle">Pattern Design</div>
+  <div class="points">
+    <div class="point"><span class="point-num">1</span>반복의 미학: 타일링 원리</div>
+    <div class="point"><span class="point-num">2</span>기하학 패턴 vs 유기적 패턴</div>
+    <div class="point"><span class="point-num">3</span>심리스(seamless) 패턴 만들기</div>
+    <div class="point"><span class="point-num">4</span>패턴의 스케일과 밀도 조절</div>
+    <div class="point"><span class="point-num">5</span>브랜딩에 패턴 활용하기</div>
+  </div>
+  <div class="tip">
+    <div class="tip-label">💡 TIP</div>
+    <div class="tip-text">패턴은 배경이 아니라 정체성이다</div>
+  </div>
+  <div class="footer">
+    <span>@ultimate.design</span>
+    <span>Art & Design Series</span>
+  </div>
+</body></html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1080px; font-family: 'Noto Sans KR', sans-serif; background: linear-gradient(135deg, #2C3E50, #4CA1AF); color: #ffffff; display: flex; flex-direction: column; padding: 60px; overflow: hidden; }
+  .header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .num { font-size: 18px; font-weight: 700; opacity: 0.6; letter-spacing: 2px; }
+  .emoji { font-size: 64px; margin-bottom: 12px; }
+  .title { font-size: 52px; font-weight: 900; line-height: 1.2; margin-bottom: 6px; }
+  .subtitle { font-size: 22px; font-weight: 400; opacity: 0.7; margin-bottom: 36px; letter-spacing: 1px; }
+  .points { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .point { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 16px; padding: 18px 24px; font-size: 22px; line-height: 1.5; font-weight: 400; display: flex; align-items: center; gap: 14px; }
+  .point-num { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+  .tip { margin-top: 28px; padding: 20px 24px; background: rgba(255,255,255,0.12); border-radius: 16px; border-left: 4px solid rgba(255,255,255,0.5); }
+  .tip-label { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; margin-bottom: 6px; }
+  .tip-text { font-size: 18px; line-height: 1.5; font-style: italic; }
+  .footer { margin-top: 24px; display: flex; justify-content: space-between; align-items: center; opacity: 0.5; font-size: 14px; }
+</style></head>
+<body>
+  <div class="header"><span class="num">02 / 30</span></div>
+  <div class="emoji">⬜</div>
+  <div class="title">미니멀리즘 디자인</div>
+  <div class="subtitle">Less is More</div>
+  <div class="points">
+    <div class="point"><span class="point-num">1</span>불필요한 요소를 제거하라</div>
+    <div class="point"><span class="point-num">2</span>여백은 디자인의 일부다</div>
+    <div class="point"><span class="point-num">3</span>한두 가지 색상만 사용</div>
+    <div class="point"><span class="point-num">4</span>타이포그래피로 계층 구조 표현</div>
+    <div class="point"><span class="point-num">5</span>기능이 형태를 결정한다</div>
+  </div>
+  <div class="tip">
+    <div class="tip-label">💡 TIP</div>
+    <div class="tip-text">"Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away." — Antoine de Saint-Exupéry</div>
+  </div>
+  <div class="footer">
+    <span>@ultimate.design</span>
+    <span>Art & Design Series</span>
+  </div>
+</body></html>
