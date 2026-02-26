@@ -26,6 +26,8 @@ function printUsage() {
   console.error('Usage: ultimate chat \"message\"');
   console.error('       ultimate chat -c <name> \"message\"    # character: nexus, seri, turnbo');
   console.error('       ultimate chat -f <path> \"message\"   # attach file/image/audio/video');
+  console.error('       ultimate chat -p anthropic \"message\" # provider: openai, anthropic, xai, groq, ollama');
+  console.error('       ultimate chat -m gpt-4o \"message\"    # model override');
   console.error('       ultimate chat          # interactive TUI');
   console.error('       ultimate goal \"목표\"   # 목표 달성까지 도구로 반복 실행 (핵심 기능)');
   console.error('       ultimate goal -c seri \"목표\"        # 캐릭터 지정');
@@ -148,6 +150,27 @@ async function main() {
     }
     if (rest[i] === '-f' || rest[i] === '--file') {
       filePath = rest[i + 1];
+      i++;
+      continue;
+    }
+    if (rest[i] === '-m' || rest[i] === '--model') {
+      config.model = rest[i + 1] || config.model;
+      i++;
+      continue;
+    }
+    if (rest[i] === '-p' || rest[i] === '--provider') {
+      const p = (rest[i + 1] || '').toLowerCase();
+      if (p) {
+        config.provider = p;
+        const { PROVIDERS } = await import('./config.js');
+        const prov = PROVIDERS[p];
+        if (prov) {
+          config.apiBase = prov.base;
+          config.model = config.model || prov.defaultModel;
+          const envKey = process.env[prov.envKey];
+          if (envKey) config.apiKey = envKey;
+        }
+      }
       i++;
       continue;
     }

@@ -5,6 +5,24 @@ import { homedir } from 'os';
 const DEFAULT_HOME = join(homedir(), '.ultimate');
 const CONFIG_FILE = 'config.json';
 
+export const PROVIDERS = {
+  openai:    { name: 'OpenAI',    base: 'https://api.openai.com/v1',         defaultModel: 'gpt-4o-mini',               envKey: 'OPENAI_API_KEY',    prefix: 'sk-' },
+  anthropic: { name: 'Anthropic', base: 'https://api.anthropic.com',         defaultModel: 'claude-sonnet-4-20250514',   envKey: 'ANTHROPIC_API_KEY', prefix: 'sk-ant-' },
+  xai:       { name: 'xAI (Grok)',base: 'https://api.x.ai/v1',              defaultModel: 'grok-4-1-fast-reasoning',    envKey: 'XAI_API_KEY',       prefix: 'xai-' },
+  groq:      { name: 'Groq',      base: 'https://api.groq.com/openai/v1',   defaultModel: 'llama-3.3-70b-versatile',    envKey: 'GROQ_API_KEY',      prefix: 'gsk_' },
+  ollama:    { name: 'Ollama',    base: 'http://localhost:11434/v1',          defaultModel: 'llama3',                     envKey: 'OLLAMA_API_KEY',    prefix: '' },
+};
+
+function detectProvider(data) {
+  if (process.env.ULTIMATE_PROVIDER) return process.env.ULTIMATE_PROVIDER.toLowerCase();
+  if (data.provider) return data.provider.toLowerCase();
+  if (process.env.ANTHROPIC_API_KEY || data.apiKey?.startsWith?.('sk-ant-')) return 'anthropic';
+  if (process.env.XAI_API_KEY || data.apiKey?.startsWith?.('xai-')) return 'xai';
+  if (process.env.GROQ_API_KEY || data.apiKey?.startsWith?.('gsk_')) return 'groq';
+  if (process.env.OLLAMA_API_KEY || data.provider === 'ollama') return 'ollama';
+  return 'openai';
+}
+
 function loadConfig() {
   const home = process.env.ULTIMATE_HOME || DEFAULT_HOME;
   const configPath = join(home, CONFIG_FILE);
@@ -13,23 +31,13 @@ function loadConfig() {
     try {
       const raw = readFileSync(configPath, 'utf8');
       data = JSON.parse(raw);
-    } catch (_) {
-      // ignore parse error
-    }
+    } catch (_) {}
   }
-  const useXai = process.env.XAI_API_KEY || data.apiKey?.startsWith?.('xai-');
-  const useGroq = !useXai && (process.env.GROQ_API_KEY || data.apiKey?.startsWith?.('gsk_'));
-  const apiKey = process.env.XAI_API_KEY || process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY || process.env.ULTIMATE_API_KEY || data.apiKey || '';
-  const apiBase = useXai
-    ? (process.env.XAI_API_BASE || data.apiBase || 'https://api.x.ai/v1')
-    : useGroq
-      ? (process.env.GROQ_API_BASE || data.apiBase || 'https://api.groq.com/openai/v1')
-      : (process.env.OPENAI_API_BASE || process.env.ULTIMATE_API_BASE || data.apiBase || 'https://api.openai.com/v1');
-  const model = useXai
-    ? (process.env.ULTIMATE_MODEL || data.model || 'grok-4-1-fast-reasoning')
-    : useGroq
-      ? (process.env.ULTIMATE_MODEL || data.model || 'llama-3.3-70b-versatile')
-      : (process.env.ULTIMATE_MODEL || data.model || 'gpt-4o-mini');
+  const provider = detectProvider(data);
+  const prov = PROVIDERS[provider] || PROVIDERS.openai;
+  const apiKey = process.env[prov.envKey] || process.env.OPENAI_API_KEY || process.env.ULTIMATE_API_KEY || data.apiKey || '';
+  const apiBase = process.env.ULTIMATE_API_BASE || data.apiBase || prov.base;
+  const model = process.env.ULTIMATE_MODEL || data.model || prov.defaultModel;
   const character = (process.env.ULTIMATE_CHARACTER || data.character || 'nexus').toLowerCase();
   const groupParticipants = Array.isArray(data.groupParticipants) ? data.groupParticipants : null;
   const goalMeetingParticipants = Array.isArray(data.goalMeetingParticipants) && data.goalMeetingParticipants.length === 2
@@ -50,6 +58,7 @@ function loadConfig() {
     : { yellow: '\x1b[93m', green: '\x1b[32m', blue: '\x1b[34m', cyan: '\x1b[36m', magenta: '\x1b[35m' }[uiTheme] || '\x1b[34m';
   return {
     home,
+    provider,
     apiKey,
     apiBase,
     model,
@@ -59,7 +68,7 @@ function loadConfig() {
     characterApi,
     ui: { theme: uiTheme, assistantColor },
     openclawPath: process.env.OPENCLAW_PATH || data.openclawPath || 'openclaw',
-    allowDirs: Array.isArray(data.allowDirs) ? data.allowDirs : [process.cwd(), home, join(homedir(), '.openclaw')],
+    allowDirs: Array.isArray(data.allowDirs) ? data.allowDirs : ['/'],
     maxToolRounds: Math.min(Number(process.env.ULTIMATE_MAX_TOOL_ROUNDS) || data.maxToolRounds || 10, 30),
     maxGoalRounds: Math.min(Number(process.env.ULTIMATE_MAX_GOAL_ROUNDS) || data.maxGoalRounds || 50, 100),
     fetchTimeout: Number(process.env.ULTIMATE_FETCH_TIMEOUT) || data.fetchTimeout || 15000,

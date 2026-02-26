@@ -10,6 +10,7 @@ import { transcribeAudio } from './transcribe-audio.js';
 import { analyzeVideo } from './analyze-video.js';
 import { downloadMedia } from './download-media.js';
 import { replicateReference } from './replicate-reference.js';
+import { listDirectory, findFiles, treeView } from './browse-system.js';
 import { loadSkills, getSkillDefinitions, runSkill } from '../skills/registry.js';
 
 const TOOL_LIST = [
@@ -193,6 +194,53 @@ const TOOL_LIST = [
   {
     type: 'function',
     function: {
+      name: 'list_directory',
+      description: 'List files and folders in any directory on the local computer. Can browse the entire filesystem — not limited to project folder. Shows file names, types, sizes, and modification dates.',
+      parameters: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: 'Directory path to list (e.g. "/Users", "/home", "~/Documents", "/etc"). Default: home directory' },
+          show_hidden: { type: 'boolean', description: 'Show hidden files (dotfiles). Default: false' },
+          limit: { type: 'number', description: 'Max items to return (default 100, max 500)' },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'find_files',
+      description: 'Search for files and folders anywhere on the local computer by name pattern. Use wildcards like *.py, *.js, or partial names. Can search any directory.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'File name pattern to search (e.g. "*.py", "package.json", "config")' },
+          path: { type: 'string', description: 'Starting directory for search (default: home). Use "/" to search entire system' },
+          type: { type: 'string', enum: ['all', 'file', 'dir'], description: 'Filter by type (default: all)' },
+          depth: { type: 'number', description: 'Max directory depth to search (default 5, max 5)' },
+          limit: { type: 'number', description: 'Max results (default 30, max 100)' },
+        },
+        required: ['query'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'tree_view',
+      description: 'Show a tree view of a directory structure. Useful for understanding project layout or folder organization. Excludes node_modules and .git.',
+      parameters: {
+        type: 'object',
+        properties: {
+          path: { type: 'string', description: 'Directory to show tree for (default: current directory)' },
+          depth: { type: 'number', description: 'Max depth (default 3, max 5)' },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'restart_self',
       description: 'Restart the current Ultimate session (exit this process and start a new one in the same terminal). Use ONLY when the user explicitly asks to restart, relaunch, or "끄고 다시 실행해" the app. After a short delay the session will restart; the user does not need to press Ctrl+C.',
       parameters: {
@@ -275,6 +323,9 @@ export async function runTool(name, args, ctx) {
   if (name === 'analyze_video') return analyzeVideo(args.path, args.question, { ...ctx, apiKey: ctx._apiKey, apiBase: ctx._apiBase, model: ctx._model });
   if (name === 'download_media') return downloadMedia(args.url, args, ctx);
   if (name === 'replicate_reference') return replicateReference(args.url, args.instruction, ctx);
+  if (name === 'list_directory') return listDirectory(args.path, args);
+  if (name === 'find_files') return findFiles(args.query, args);
+  if (name === 'tree_view') return treeView(args.path, args);
   if (name === 'run_openclaw') return runOpenClaw(args.message, ctx);
   if (name === 'read_file') return readFile(args.path, ctx);
   if (name === 'write_file') return writeFile(args.path, args.content, ctx);
